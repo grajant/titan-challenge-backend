@@ -8,46 +8,70 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 15
 
 Resources:
   SearchFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: search/
-      Handler: app.searchHandler
-      Runtime: nodejs20.x
+      PackageType: Image
+      MemorySize: 512
       Architectures:
         - x86_64
+      AutoPublishAlias: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 2
+      Policies:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'es:ESHttpGet'
+              - 'es:ESHttpPost'
+              - 'es:ESHttpPut'
+            Resource: 'arn:aws:es:us-east-1:920262348268:domain/titan-challenge-elastic/*'
       Events:
         SearchDoctors:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /search/doctors
             Method: get
-        SearchClinics:
-          Type: Api
-          Properties:
-            Path: /search/clinics
-            Method: get
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        EntryPoints:
-          - app.ts
+      Environment:
+        Variables:
+          STAGE: "Prod"
+          ELASTIC_SEARCH_ENDPOINT: "https://search-titan-challenge-elastic-zvgenpn2ibrlfmlarqgcpuwpau.us-east-1.es.amazonaws.com"
+    Metadata: # Manage docker properties
+      DockerTag: nodejs20.x-v1
+      DockerContext: ./search
+      Dockerfile: Dockerfile
+
+  SearchFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${SearchFunction}'
+      RetentionInDays: 5
+
+  ElasticsearchDomain:
+    Type: "AWS::Elasticsearch::Domain"
+    Properties:
+      DomainName: "titan-challenge-elastic"
+      ElasticsearchVersion: "7.10"
+      ElasticsearchClusterConfig:
+        InstanceType: "t3.small.elasticsearch"
+        InstanceCount: 1
+      EBSOptions:
+        EBSEnabled: true
+        VolumeSize: 10
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  SearchApi:
+  SearchFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Search Doctors path"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/search/doctors"
   SearchFunction:
-    Description: "Hello World Lambda Function ARN"
+    Description: "Search Doctors Lambda Function ARN"
     Value: !GetAtt SearchFunction.Arn
   SearchFunctionIamRole:
     Description: "Implicit IAM Role created for Search function"

@@ -1,0 +1,10 @@
+### Exclude all files except the ones listed below
+*
+
+### Files that won't be excluded ###
+!lib
+!routes
+!schemas
+!app.ts
+!package.json
+!package-lock.json

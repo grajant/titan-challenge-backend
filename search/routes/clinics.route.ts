@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 export const clinicsRoute = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   return {

@@ -1,5 +1,5 @@
 import { clinicsRoute, doctorsRoute, RouteWithHandler } from './routes';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 const routes: RouteWithHandler = {
   '/search/doctors': doctorsRoute,

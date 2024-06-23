@@ -1,6 +1,6 @@
 import { doctorsRoute } from './doctors.route';
 import { clinicsRoute } from './clinics.route';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 export { doctorsRoute, clinicsRoute };
 

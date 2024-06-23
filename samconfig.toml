@@ -19,7 +19,7 @@ confirm_changeset = true
 resolve_s3 = true
 s3_prefix = "titan-challenge-backend"
 region = "us-east-1"
-image_repositories = []
+image_repositories = ["SearchFunction=920262348268.dkr.ecr.us-east-1.amazonaws.com/titanchallengebackendb46bca45/searchfunctione1e5d2bcrepo"]
 
 [default.package.parameters]
 resolve_s3 = true
@@ -29,6 +29,8 @@ watch = true
 
 [default.local_start_api.parameters]
 warm_containers = "EAGER"
+docker_network = "lambda-local"
+env_vars = "env.dev.json"
 
 [default.local_start_lambda.parameters]
 warm_containers = "EAGER"
