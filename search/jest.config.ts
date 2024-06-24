@@ -2,10 +2,11 @@
  * For a detailed explanation regarding each configuration property and type check, visit:
  * https://jestjs.io/docs/configuration
  */
+import type { Config } from 'jest';
 
-export default {
+const configuration: Config = {
   transform: {
-    '^.+\\.ts?$': 'ts-jest',
+    '^.+\\.ts?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.test.json' }],
   },
   clearMocks: true,
   collectCoverage: true,
@@ -13,3 +14,5 @@ export default {
   coverageProvider: 'v8',
   testMatch: ['**/tests/unit/*.test.ts', '**/*.test.ts'],
 };
+
+export default configuration;

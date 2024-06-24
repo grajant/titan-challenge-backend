@@ -1,9 +1,15 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { describe, expect, it } from '@jest/globals';
 import { searchHandler } from '../../app';
 
-describe('Unit test for app handler', function () {
-  it('verifies successful response', async () => {
+const mockDoctorsRoute = jest.fn();
+
+jest.mock('../../routes', () => ({
+  __esModule: true,
+  doctorsRoute: () => mockDoctorsRoute(),
+}));
+
+describe('Search fn lambda handler', function () {
+  it('should use the doctors handler when the path is "/search/doctors"', async () => {
     const event: APIGatewayProxyEvent = {
       httpMethod: 'get',
       body: '',
@@ -11,7 +17,7 @@ describe('Unit test for app handler', function () {
       isBase64Encoded: false,
       multiValueHeaders: {},
       multiValueQueryStringParameters: {},
-      path: '/hello',
+      path: '/search/doctors',
       pathParameters: {},
       queryStringParameters: {},
       requestContext: {
@@ -53,13 +59,17 @@ describe('Unit test for app handler', function () {
       resource: '',
       stageVariables: {},
     };
+    const mockedResponse: APIGatewayProxyResult = {
+      statusCode: 200,
+      body: JSON.stringify({
+        searchResults: [],
+      }),
+    };
+    mockDoctorsRoute.mockResolvedValueOnce(mockedResponse);
+
     const result: APIGatewayProxyResult = await searchHandler(event);
 
-    expect(result.statusCode).toEqual(200);
-    expect(result.body).toEqual(
-      JSON.stringify({
-        message: 'hello world',
-      }),
-    );
+    expect(result.statusCode).toEqual(mockedResponse.statusCode);
+    expect(result.body).toEqual(mockedResponse.body);
   });
 });
